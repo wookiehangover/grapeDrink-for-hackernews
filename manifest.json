@@ -1,0 +1,12 @@
+{
+  "name": "Hacker News Browser",
+  "version": "0.1",
+  "description": "test env",
+	"content_scripts": [
+		{
+      "matches": ["http://news.ycombinator.com/*"],
+      "js": ["jquery-latest.js", "engine.js"]
+    }
+	]	
+}
+
