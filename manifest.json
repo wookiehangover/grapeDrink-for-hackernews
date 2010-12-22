@@ -5,7 +5,8 @@
 	"content_scripts": [
 		{
       "matches": ["http://news.ycombinator.com/*"],
-      "js": ["jquery-latest.js", "engine.js"]
+      "css": ["s.css"],
+      "js": ["jquery-latest.js", "cornify.js", "engine.js"]
     }
 	]	
 }
