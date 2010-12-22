@@ -1,0 +1,2 @@
+body table > tbody:first-child {display:none;}
+body a:visited {border:1px solid red;}

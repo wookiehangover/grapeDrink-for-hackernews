@@ -4,12 +4,15 @@ $('center > table').attr('bgcolor', '#eaeaea');
 $('img[width="18"]').css('opacity', '0.5');
 $('td[bgcolor="#ff6600"]').attr('bgcolor', '#ff00ff');
 
-var karma = $('td[bgcolor="#ff00ff"] td:last-child > span'),
-    over9000 = function(anything){
-      var nineThousand = anything.html().replace(/\(+.+\)/, "(9001)");
+var over9000 = function(anything){
+  var under9000 = anything.html().match(/\(+.+\)/)[0]+"",
+      over9000 = parseInt(under9000.match(/[0-9]+[0-9]/)[0]) + 9000,
+      almost9000 = anything.html().replace(/\(+.+\)/, "("+over9000+")");
 
-      anything.html(nineThousand);
-    };
+  anything.html(almost9000);
+};
+
+var karma = $('td[bgcolor="#ff00ff"] td:last-child > span');
 
 over9000(karma);
 
@@ -57,5 +60,7 @@ while(i--){
   }
   f++;
 }
+
+$('table > tbody:first-child').fadeIn();
 
 })(jQuery);
