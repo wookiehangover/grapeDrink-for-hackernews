@@ -1,66 +1,117 @@
 (function($){
+console.profile('HK');
+// Establish namespace to be friendly
+var HK = (function HK( ){
+  // Define an fn namespace as prototype.
+  // This lets us safely call other methods in our returned object
+  // Return public methods
+  return HK.fn = HK.prototype = {
+    
+    // To be called from doc.ready()
+    init: function( e ) {
+      // Set up selector caching
+      var header = $('table:first > tbody:first-child > tr:first-child > td:first'),
+          table = $('center > table:first'),
+          karma = header.find('td:last-child > span'),
+          logo = $('img[width="18"]'),
+          comments = $('.subtext  a:last-child');
 
-$('center > table').attr('bgcolor', '#eaeaea');
-$('img[width="18"]').css('opacity', '0.5');
-$('td[bgcolor="#ff6600"]').attr('bgcolor', '#ff00ff');
+      // Invoke our other functions from fn namespace
+      HK.fn.weightComments( comments );
+      HK.fn.externalLinks( );
+      HK.fn.changeKarma( karma );
 
-var over9000 = function(anything){
-  var under9000 = anything.html().match(/\(+.+\)/)[0]+"",
-      over9000 = parseInt(under9000.match(/[0-9]+[0-9]/)[0]) + 9000,
-      almost9000 = anything.html().replace(/\(+.+\)/, "("+over9000+")");
+      // Change the theme a bit
+      // TODO break out into separate funciton
+      logo.css('opacity', '0.5');
+      table.attr('bgcolor', '#eaeaea')
+      header.attr('bgcolor', '#ff00ff');
+      comments.css({ 'padding': '0 2px 2px 2px'});
 
-  anything.html(almost9000);
-};
+      // Show the updated table >_<
+      return $('table > tbody:first-child').fadeIn();
+    },
 
-var karma = $('td[bgcolor="#ff00ff"] td:last-child > span');
+    // Highlights comments by order weight.
+    // Takes a jq element
+    weightComments: function( elem ){
+      try {
+        var i, j, scale,
+            f = 0,
+            comments = elem,
+            comment_count = [];
 
-over9000(karma);
+        // Iterate through list of comments
+        comments.each(function(i, elem){
+          var text = $(elem).text();
+          // Scrub out comment text to get count
+          text = text.replace(/^discuss$/, "0");
+          text = text.replace(/.comments$/, "");
+
+          // Push jq selector and numeric count into comment_cout
+          comment_count.push({
+            'jq': $(elem),
+            'count': parseInt(text)
+          });
+        });
+
+        // sort decsending by count
+        comment_count.sort(function(a, b) { return a.count - b.count });
+        
+        i = comment_count.length;
+        // Set an RGB color scale multiplier
+        // This makes changing our our numeric rank f to an RBG value easier
+        scale = 200 / i;
+        // Inverted while loops are fast. really fast.
+        while(i--){
+          j = ~~(f*scale);
+          if(comment_count[i]["count"] > 75 ) { 
+            comment_count[i]["jq"].css({'background': "rgb(255, 0, 0)", color: "#fff"});
+          } else {
+            comment_count[i]["jq"].css({'background': "rgb("+ j +", "+ j +", "+ j +")", color: "#fff"});
+          }
+          f++;
+        }
+      } catch(e) {
+        console.error("Holy fucking shit there's an error:\n"+e);
+      }
+    },
+
+    // Add over 9000 points to your karma score
+    changeKarma: function( elem ){
+      try{
+        this.over9000 = function(anything){
+          var under9000 = anything.html().match(/\(+.+\)/)[0]+"",
+            over9000 = parseInt(under9000.match(/[0-9]+[0-9]/)[0]) + 9000,
+            almost9000 = anything.html().replace(/\(+.+\)/, "("+over9000+")");
+
+          anything.html(almost9000);
+        };
+
+        return this.over9000(elem)
+      } catch(e) {
+          console.error("Holy fucking shit there's an error:\n"+e);
+      }
+    },
+
+    // Makes all outbound links open in new tabs
+    externalLinks: function( ){
+      $('body').delegate('a','click', function(e){
+        //cornify_add();
+
+        if(this.href.indexOf('news.ycombinator') < 0) {
+          e.preventDefault();
+          window.open(this.href);
+        }
+      });
+    }
+  };
+
+})();
 
 
-$('a').click(function(e){
-  cornify_add();
+$(document).ready(HK.init);
 
-	if(this.href.indexOf('news.ycombinator') < 0) {
-		e.preventDefault();
-		window.open(this.href);
-	}
-});
-
-var comments = $('.subtext  a:last-child'),
-    comment_count = [];
-
-comments.css({ 'padding': '0 2px 2px 2px'});
-
-comments.each(function(i, elem){
-  var text = $(elem).text();
-
-  text = text.replace(/^discuss$/, "0");
-  text = text.replace(/.comments$/, "");
-
-  var c = {
-    'jq': $(elem),
-    'count': parseInt(text)
-  }
-
-  comment_count.push(c);
-});
-
-comment_count.sort(function(a, b) { return a.count - b.count });
-
-var f = 0;
-var i = comment_count.length;
-
-var j, scale = 200 / i;
-while(i--){
-  j = ~~(f*scale);
-  if(comment_count[i]["count"] > 75 ) { 
-    comment_count[i]["jq"].css({'background': "rgb(255, 0, 0)", color: "#fff"});
-  } else {
-    comment_count[i]["jq"].css({'background': "rgb("+ j +", "+ j +", "+ j +")", color: "#fff"});
-  }
-  f++;
-}
-
-$('table > tbody:first-child').fadeIn();
+console.profileEnd('HK');
 
 })(jQuery);
