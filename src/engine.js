@@ -1,5 +1,22 @@
 (function($){
-console.profile('HK');
+
+
+	$.fn.konami = function(callback, code) {
+		if(code == undefined) code = "38,38,40,40,37,39,37,39,66,65";
+		
+		return this.each(function() {
+			var kkeys = [];
+			$(this).keydown(function(e){
+				kkeys.push( e.keyCode );
+				if ( kkeys.toString().indexOf( code ) >= 0 ){
+					$(this).unbind('keydown', arguments.callee);
+					callback(e);
+				}
+			}, true);
+		});
+	}
+
+  
 // Establish namespace to be friendly
 var HK = (function HK( ){
   // Define an fn namespace as prototype.
@@ -10,7 +27,8 @@ var HK = (function HK( ){
     // To be called from doc.ready()
     init: function( e ) {
       // Set up selector caching
-      var header = $('table:first > tbody:first-child > tr:first-child > td:first'),
+
+      var unicron, ut, header = $('table:first > tbody:first-child > tr:first-child > td:first'),
           table = $('center > table:first'),
           karma = header.find('td:last-child > span'),
           logo = $('img[width="18"]'),
@@ -27,6 +45,15 @@ var HK = (function HK( ){
       table.attr('bgcolor', '#eaeaea')
       header.attr('bgcolor', '#ff00ff');
       comments.css({ 'padding': '0 2px 2px 2px'});
+
+      // Recursive timeout for added Unicorns
+      unicron = function (){
+        cornify_add();
+        ut = setTimeout(unicron, 1000);
+      };
+
+      // Konami code enables moar awesome
+      $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut)});
 
       // Show the updated table >_<
       return $('table > tbody:first-child').fadeIn();
@@ -55,9 +82,9 @@ var HK = (function HK( ){
           });
         });
 
-        // sort decsending by count
+        // Sort decs by number of comments
         comment_count.sort(function(a, b) { return a.count - b.count });
-        
+
         i = comment_count.length;
         // Set an RGB color scale multiplier
         // This makes changing our our numeric rank f to an RBG value easier
@@ -81,10 +108,13 @@ var HK = (function HK( ){
     changeKarma: function( elem ){
       try{
         this.over9000 = function(anything){
+          // Match comments text in *entire* table head
           var under9000 = anything.html().match(/\(+.+\)/)[0]+"",
+          // Then strip out the karma # and add 9000
             over9000 = parseInt(under9000.match(/[0-9]+[0-9]/)[0]) + 9000,
+          // Hacker news is a table because???
             almost9000 = anything.html().replace(/\(+.+\)/, "("+over9000+")");
-
+          // Stick our crap back into the STFU table
           anything.html(almost9000);
         };
 
@@ -97,13 +127,12 @@ var HK = (function HK( ){
     // Makes all outbound links open in new tabs
     externalLinks: function( ){
       $('body').delegate('a','click', function(e){
-        //cornify_add();
-
         if(this.href.indexOf('news.ycombinator') < 0) {
           e.preventDefault();
           window.open(this.href);
         }
       });
+
     }
   };
 
@@ -111,7 +140,5 @@ var HK = (function HK( ){
 
 
 $(document).ready(HK.init);
-
-console.profileEnd('HK');
 
 })(jQuery);
