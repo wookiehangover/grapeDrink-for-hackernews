@@ -22,7 +22,7 @@ var HK = (function HK( ){
   // Define an fn namespace as prototype.
   // This lets us safely call other methods in our returned object
   // Return public methods
-  return HK.fn = HK.prototype = {
+  var fn = {
     
     // To be called from doc.ready()
     init: function( e ) {
@@ -35,9 +35,9 @@ var HK = (function HK( ){
           comments = $('.subtext  a:last-child');
 
       // Invoke our other functions from fn namespace
-      HK.fn.weightComments( comments );
-      HK.fn.externalLinks( );
-      HK.fn.changeKarma( karma );
+      fn.weightComments( comments );
+      fn.externalLinks( );
+      fn.changeKarma( karma );
 
       // Change the theme a bit
       // TODO break out into separate funciton
@@ -52,11 +52,19 @@ var HK = (function HK( ){
         ut = setTimeout(unicron, 1000);
       };
 
+      setTimeout(fn.longPoll, 60e3);
+
       // Konami code enables moar awesome
       $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut)});
 
       // Show the updated table >_<
       return $('table > tbody:first-child').fadeIn();
+    },
+
+    longPoll: function longPoll(){
+      
+      window.location.reload();
+
     },
 
     // Highlights comments by order weight.
@@ -136,9 +144,11 @@ var HK = (function HK( ){
     }
   };
 
+  return fn;
+
 })();
 
-
+window.HK = HK;
 $(document).ready(HK.init);
 
 })(jQuery);

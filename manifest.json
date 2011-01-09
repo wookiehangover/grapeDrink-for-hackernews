@@ -8,6 +8,9 @@
       "css": ["src/s.css"],
       "js": ["src/jquery-latest.js", "src/cornify.js", "src/engine.js"]
     }
-	]	
+	],
+  "permissions": [
+    "http://news.ycombinator.com/"
+  ]	
 }
 
