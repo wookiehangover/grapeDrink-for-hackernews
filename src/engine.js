@@ -52,7 +52,9 @@ var HK = (function HK( ){
         ut = setTimeout(unicron, 1000);
       };
 
-      setTimeout(fn.longPoll, 60e3);
+      if( /new/.test(window.location.pathname) ) {
+        setTimeout(fn.longPoll, 60e3);
+      }
 
       // Konami code enables moar awesome
       $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut)});
