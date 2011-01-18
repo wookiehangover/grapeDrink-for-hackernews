@@ -1,40 +1,31 @@
 (function($){
+console.profile('g');
+$.fn.konami = function(callback, code) {
+  var c = code || "38,38,40,40,37,39,37,39,66,65";
 
+  return this.each(function() {
+    var kkeys = [];
+    $(this).keydown(function(e){
+      kkeys.push( e.keyCode );
+      if ( kkeys.toString().indexOf( c ) >= 0 ){
+        $(this).unbind('keydown', arguments.callee);
+        callback(e);
+      }
+    }, true);
+  });
+};
 
-	$.fn.konami = function(callback, code) {
-		if(code == undefined) code = "38,38,40,40,37,39,37,39,66,65";
-		
-		return this.each(function() {
-			var kkeys = [];
-			$(this).keydown(function(e){
-				kkeys.push( e.keyCode );
-				if ( kkeys.toString().indexOf( code ) >= 0 ){
-					$(this).unbind('keydown', arguments.callee);
-					callback(e);
-				}
-			}, true);
-		});
-	}
+var HK = (function HK() {
+  var unicron, ut, timer, header = $('table:first > tbody:first-child > tr:first-child > td:first'),
+      table = $('center > table:first'),
+      karma = header.find('td:last-child > span'),
+      logo = $('img[width="18"]'),
+      comments = $('.subtext  a:last-child'),
 
-  
-// Establish namespace to be friendly
-var HK = (function HK( ){
-  // Define an fn namespace as prototype.
-  // This lets us safely call other methods in our returned object
-  // Return public methods
-  var fn = {
-    
-    // To be called from doc.ready()
-    init: function( e ) {
-      // Set up selector caching
+  fn = {
 
-      var unicron, ut, header = $('table:first > tbody:first-child > tr:first-child > td:first'),
-          table = $('center > table:first'),
-          karma = header.find('td:last-child > span'),
-          logo = $('img[width="18"]'),
-          comments = $('.subtext  a:last-child');
-
-      // Invoke our other functions from fn namespace
+    init: function() {
+            // Invoke our other functions from fn namespace
       fn.weightComments( comments );
       fn.externalLinks( );
       fn.changeKarma( karma );
@@ -52,26 +43,45 @@ var HK = (function HK( ){
         ut = setTimeout(unicron, 1000);
       };
 
-      if( /new/.test(window.location.pathname) ) {
-        setTimeout(fn.longPoll, 60e3);
-      }
+      fn.setTimer();
 
       // Konami code enables moar awesome
-      $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut)});
+      $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut); });
 
       // Show the updated table >_<
-      return $('table > tbody:first-child').fadeIn();
+      $('table > tbody:first-child').fadeIn();
+      console.profileEnd('g');
     },
 
-    longPoll: function longPoll(){
+    longPoll: function longPoll() {
       
       window.location.reload();
 
     },
 
+    setTimer: function() {
+      if( /new/.test(window.location.pathname) ) {
+        timer = setTimeout(fn.longPoll, 60e3);
+      }
+    },
+
+    getTimer: function() {
+      return timer;
+    },
+
+    flash: function() {
+      var flash = $('#flash');
+
+      if( !!flash.length ) {
+        flash = $('div', { id: 'flash' }).before('center:first');
+      }
+
+      console.debug(flash);
+    },
+
     // Highlights comments by order weight.
     // Takes a jq element
-    weightComments: function( elem ){
+    weightComments: function( elem ) {
       try {
         var i, j, scale,
             f = 0,
