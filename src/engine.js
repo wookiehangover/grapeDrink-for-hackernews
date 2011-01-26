@@ -1,5 +1,4 @@
 (function($){
-console.profile('g');
 $.fn.konami = function(callback, code) {
   var c = code || "38,38,40,40,37,39,37,39,66,65";
 
@@ -16,7 +15,7 @@ $.fn.konami = function(callback, code) {
 };
 
 var HK = (function HK() {
-  var unicron, ut, timer, header = $('table:first > tbody:first-child > tr:first-child > td:first'),
+  var unicron, ut, timer, int, header = $('table:first > tbody:first-child > tr:first-child > td:first'),
       table = $('center > table:first'),
       karma = header.find('td:last-child > span'),
       logo = $('img[width="18"]'),
@@ -25,58 +24,79 @@ var HK = (function HK() {
   fn = {
 
     init: function() {
-            // Invoke our other functions from fn namespace
+      // Invoke our other functions from fn namespace
       fn.weightComments( comments );
       fn.externalLinks( );
       fn.changeKarma( karma );
 
       // Change the theme a bit
-      // TODO break out into separate funciton
       logo.css('opacity', '0.5');
-      table.attr('bgcolor', '#eaeaea')
+      table.attr('bgcolor', '#eaeaea');
       header.attr('bgcolor', '#ff00ff');
       comments.css({ 'padding': '0 2px 2px 2px'});
-
+      $('div', { id: 'flash' }).appendTo('body');
       // Recursive timeout for added Unicorns
       unicron = function (){
         cornify_add();
         ut = setTimeout(unicron, 1000);
       };
 
-      fn.setTimer();
 
       // Konami code enables moar awesome
-      $(window).konami(unicron).keyup(function(e){(e.keyCode==27 && !!ut) && clearTimeout(ut); });
+      $(window).konami(unicron);
+
+      $(window).keyup(function(e){
+        if( e.keyCode == 27 && !!timer )  {
+          $('#timer').trigger('click');
+        }
+      });
+
+      $('body').prepend($('<div>', { id: "flash" }));
+      $('body').prepend($('<div>', { id: "timer" }));
+
+      $('#timer').live('click', function(e){
+          if( !!timer === true ){
+            clearTimeout(timer);
+            clearInterval(int);
+            timer = null;
+            int = null;
+            fn.flash('Timer Cancelled');
+          } else {
+            fn.longPoll();
+            fn.flash('Timer Resumed');
+          }
+      });
+
+      if( /new/.test(window.location.pathname) || window.location.pathname == "/" ) {
+        fn.longPoll();
+      }
 
       // Show the updated table >_<
       $('table > tbody:first-child').fadeIn();
-      console.profileEnd('g');
     },
 
-    longPoll: function longPoll() {
-      
-      window.location.reload();
+    longPoll: function() {
+      var t = function(){
+            window.location.reload();
+          },
+          i = 120,
+          c = $('#timer'),
 
+          countdown = function(){
+            c.text(i--);
+          };
+
+      timer = setTimeout(t, 120e3);
+      int = setInterval(countdown, 1000);
     },
 
-    setTimer: function() {
-      if( /new/.test(window.location.pathname) ) {
-        timer = setTimeout(fn.longPoll, 60e3);
+    flash: function(msg, timeout) {
+      var flash = $('#flash'),
+          t = timeout || 2000;
+
+      if( !!msg ) {
+        flash.html(msg).slideDown(400).delay(t).slideUp(400);
       }
-    },
-
-    getTimer: function() {
-      return timer;
-    },
-
-    flash: function() {
-      var flash = $('#flash');
-
-      if( !!flash.length ) {
-        flash = $('div', { id: 'flash' }).before('center:first');
-      }
-
-      console.debug(flash);
     },
 
     // Highlights comments by order weight.
@@ -98,7 +118,7 @@ var HK = (function HK() {
           // Push jq selector and numeric count into comment_cout
           comment_count.push({
             'jq': $(elem),
-            'count': parseInt(text)
+            'count': parseInt(text, 10)
           });
         });
 

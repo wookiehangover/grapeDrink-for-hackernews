@@ -1,2 +1,5 @@
 body table > tbody:first-child {display:none;}
 body a:visited {border:1px solid red;}
+#flash { margin:10px auto; display:none; font-size:16px; color:#333; text-align:center; font-weight:bold; font-family:helvetica, arial;}
+#timer { padding:10px; cursor: pointer; display:block; font-size:22px; color:#eaeaea; float:left; position:fixed; top:0; left:0; font-weight:bold; font-family:helvetica, arial;}
+#timer:hover { color:#333; }
